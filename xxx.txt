@@ -1,0 +1,389 @@
+prg10 shortest path:
+
+import heapq
+def dijkstra(graph, start):
+    # Initialize distances and priority queue
+    distances = {vertex: float('infinity') for vertex in graph}
+    distances[start] = 0
+    priority_queue = [(0, start)]
+
+    while priority_queue:
+        current_distance, current_vertex = heapq.heappop(priority_queue)
+     
+   # If the current distance is greater than the known distance, skip
+        if current_distance > distances[current_vertex]:
+            continue
+
+        # Explore neighbors
+        for neighbor, weight in graph[current_vertex].items():
+            distance = current_distance + weight
+
+            # If a shorter path is found, update the distance and add to the queue
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(priority_queue, (distance, neighbor))
+    return distances
+# Example graph represented as an adjacency list
+graph = {
+    'A': {'B': 1, 'C': 4},
+    'B': {'A': 1, 'C': 2, 'D': 5},
+    'C': {'A': 4, 'B': 2, 'D': 1},
+    'D': {'B': 5, 'C': 1}
+}
+start_vertex = 'A'
+result = dijkstra(graph, start_vertex)
+print(f"Shortest distances from vertex {start_vertex}: {result}")
+
+output :
+
+Shortest distances from vertex A: {'A': 0, 'B': 1, 'C': 3, 'D': 4}
+
+
+
+
+Program 13 - Distance Vector Routing
+
+class DistanceVectorRouter:
+    def __init__(self, router_name):
+        self.router_name = router_name
+        self.routing_table = {}
+
+    def add_route(self, destination, distance):
+        self.routing_table[destination] = distance
+
+    def update_route(self, destination, new_distance):
+        if destination in self.routing_table:
+            self.routing_table[destination] = new_distance
+        else:
+            self.add_route(destination, new_distance)
+
+    def print_routing_table(self):
+        print(f"Routing Table for Router {self.router_name}:")
+        for destination, distance in self.routing_table.items():
+            print(f"Destination: {destination}, Distance: {distance}")
+
+# Example of configuring default routes and using distance vector protocol
+router_A = DistanceVectorRouter("A")
+router_B = DistanceVectorRouter("B")
+router_C = DistanceVectorRouter("C")
+
+# Initial configuration
+router_A.add_route("B", 1)
+router_A.add_route("C", 3)
+
+router_B.add_route("A", 1)
+router_B.add_route("C", 2)
+
+router_C.add_route("A", 3)
+router_C.add_route("B", 2)
+
+# Print initial routing tables
+router_A.print_routing_table()
+router_B.print_routing_table()
+router_C.print_routing_table()
+
+# Simulate a change in distance vector (e.g., link cost changes)
+router_A.update_route("C", 5)
+router_B.update_route("A", 2)
+
+# Print updated routing tables
+router_A.print_routing_table()
+router_B.print_routing_table()
+router_C.print_routing_table()
+
+
+
+
+
+
+Program 14 - Link State Routing
+
+import heapq
+
+class LinkStateRouter:
+    def __init__(self, router_name):
+        self.router_name = router_name
+        self.topology = {}  # {neighbor: cost}
+        self.sequence_number = 0
+
+    def add_neighbor(self, neighbor, cost):
+        self.topology[neighbor] = cost
+
+    def remove_neighbor(self, neighbor):
+        if neighbor in self.topology:
+            del self.topology[neighbor]
+
+    def update_topology(self, neighbor, cost):
+        if neighbor not in self.topology or self.topology[neighbor] != cost:
+            self.sequence_number += 1
+            self.topology[neighbor] = cost
+
+    def calculate_shortest_paths(self):
+        # Dijkstra's algorithm to calculate shortest paths
+        distances = {neighbor: float('inf') for neighbor in self.topology}
+        distances[self.router_name] = 0
+
+        priority_queue = [(0, self.router_name)]
+
+        while priority_queue:
+            current_distance, current_node = heapq.heappop(priority_queue)
+
+            if current_distance > distances[current_node]:
+                continue
+
+            for neighbor, cost in self.topology.items():
+                distance = current_distance + cost
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    heapq.heappush(priority_queue, (distance, neighbor))
+
+        return distances
+
+    def print_routing_table(self):
+        print(f"Routing Table for Router {self.router_name}:")
+        shortest_paths = self.calculate_shortest_paths()
+        for destination, distance in shortest_paths.items():
+            print(f"Destination: {destination}, Distance: {distance}")
+
+# Example of configuring a network using Link State Routing Protocol
+router_A = LinkStateRouter("A")
+router_B = LinkStateRouter("B")
+router_C = LinkStateRouter("C")
+
+# Initial configuration
+router_A.add_neighbor("B", 1)
+router_A.add_neighbor("C", 3)
+
+router_B.add_neighbor("A", 1)
+router_B.add_neighbor("C", 2)
+
+router_C.add_neighbor("A", 3)
+router_C.add_neighbor("B", 2)
+
+# Print initial routing tables
+router_A.print_routing_table()
+router_B.print_routing_table()
+router_C.print_routing_table()
+
+# Simulate a link state change
+router_A.update_topology("C", 5)
+router_B.remove_neighbor("C")
+
+# Print updated routing tables
+router_A.print_routing_table()
+router_B.print_routing_table()
+router_C.print_routing_table()
+
+
+
+Program 15  Standard Access List
+import ipaddress
+
+class StandardAccessList:
+    def __init__(self):
+        self.allowed_hosts = []
+
+    def add_allow_host(self, host):
+        if isinstance(host, str) and ipaddress.IPv4Address(host):
+            self.allowed_hosts.append(host)
+            print(f"Added {host} to the access list.")
+        else:
+            print("Invalid IP address format.")
+
+    def check_access(self, host):
+        if host in self.allowed_hosts:
+            print(f"{host} is allowed.")
+        else:
+            print(f"{host} is not allowed.")
+
+    def print_access_list(self):
+        print("Access List:")
+        for host in self.allowed_hosts:
+            print(host)
+
+# Example of configuring and verifying a standard access list
+acl = StandardAccessList()
+
+# Add allowed hosts
+acl.add_allow_host("192.168.1.1")
+acl.add_allow_host("192.168.2.2")
+
+# Print access list
+acl.print_access_list()
+
+# Verify access
+acl.check_access("192.168.1.1")
+acl.check_access("192.168.3.3")
+
+
+
+
+
+Program 11 - Encryption & Decryption using RSA Algorithm
+
+import random
+import math
+
+def is_prime(num):
+    if num < 2:
+        return False
+    for i in range(2, int(math.sqrt(num)) + 1):
+        if num % i == 0:
+            return False
+    return True
+
+def generate_keypair():
+    p = 0
+    q = 0
+
+    # Generate two distinct prime numbers
+    while not is_prime(p):
+        p = random.randint(50, 100)
+    while not is_prime(q) or q == p:
+        q = random.randint(100, 150)
+
+    n = p * q
+    phi = (p - 1) * (q - 1)
+
+    # Choose e such that 1 < e < phi and e is coprime to phi
+    e = random.randint(2, phi - 1)
+    while math.gcd(e, phi) != 1:
+        e = random.randint(2, phi - 1)
+
+    # Calculate d, the modular multiplicative inverse of e (mod phi)
+    d = pow(e, -1, phi)
+
+    public_key = (n, e)
+    private_key = (n, d)
+
+    return public_key, private_key
+
+def encrypt(message, public_key):
+    n, e = public_key
+    encrypted_message = [pow(ord(char), e, n) for char in message]
+    return encrypted_message
+
+def decrypt(encrypted_message, private_key):
+    n, d = private_key
+    decrypted_message = ''.join([chr(pow(char, d, n)) for char in encrypted_message])
+    return decrypted_message
+
+def main():
+    message = "Hello, RSA!"
+
+    # Generate keypair
+    public_key, private_key = generate_keypair()
+
+    # Encrypt the message
+    encrypted_message = encrypt(message, public_key)
+    print("Encrypted Message:", encrypted_message)
+
+    # Decrypt the message
+    decrypted_message = decrypt(encrypted_message, private_key)
+    print("Decrypted Message:", decrypted_message)
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+Ex8.py ipv6:
+import ipaddress
+
+ip = input("Enter IPv6 address: ")
+
+try:
+    ip = ipaddress.ip_address(ip)
+    if ip.version != 6:
+        print("You should enter an IPv6 address.")
+        exit()
+
+    # Create net mask with all network bits set to 1
+    net_mask = ipaddress.ip_address("ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff")
+
+    # Create host mask with all host bits set to 1
+    host_mask = ipaddress.ip_address("::ffff:ffff:ffff:ffff")
+
+    # Separate net-id and host-id
+    net_id = ipaddress.ip_address(int(ip) & int(net_mask))
+    host_id = ipaddress.ip_address(int(ip) & int(host_mask))
+
+    print("Net ID:", net_id)
+    print("Host ID:", host_id)
+
+except ValueError:
+    print("Invalid IPv6 address")
+ 
+ex 9 connectionless:
+udp_server.py
+import socket
+UDP_IP = "192.168.56.1"
+UDP_PORT = 8000 
+sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+sock.bind((UDP_IP, UDP_PORT))
+data,addr = sock.recvfrom(1024)
+print("received message: %s" % data)
+
+udp_client.py
+import socket   
+UDP_IP = "192.168.56.1"
+UDP_PORT = 8000
+MESSAGE = b"Hello, World!"    
+sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM) # UDP
+sock.sendto(MESSAGE, (UDP_IP, UDP_PORT))
+print("UDP target IP: %s" % UDP_IP)
+print("UDP target port: %s" % UDP_PORT)
+print("message: %s" % MESSAGE)
+
+
+
+
+
+
+
+
+import heapq
+def dijkstra(graph, start):
+    # Initialize distances and priority queue
+    distances = {vertex: float('infinity') for vertex in graph}
+    distances[start] = 0
+    priority_queue = [(0, start)]
+
+    while priority_queue:
+        current_distance, current_vertex = heapq.heappop(priority_queue)
+     
+   # If the current distance is greater than the known distance, skip
+        if current_distance > distances[current_vertex]:
+            continue
+
+        # Explore neighbors
+        for neighbor, weight in graph[current_vertex].items():
+            distance = current_distance + weight
+
+            # If a shorter path is found, update the distance and add to the queue
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(priority_queue, (distance, neighbor))
+    return distances
+# Example graph represented as an adjacency list
+graph = {
+    'A': {'B': 1, 'C': 4},
+    'B': {'A': 1, 'C': 2, 'D': 5},
+    'C': {'A': 4, 'B': 2, 'D': 1},
+    'D': {'B': 5, 'C': 1}
+}
+start_vertex = 'A'
+result = dijkstra(graph, start_vertex)
+print(f"Shortest distances from vertex {start_vertex}: {result}")
+
+
+
+
+
+
+
+
+
+
